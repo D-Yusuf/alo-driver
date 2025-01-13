@@ -17,7 +17,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         const token = createToken(user)
         return res.json({ token })
     } catch (error: any) {
-        return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 
@@ -33,9 +33,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     if (!isPasswordCorrect) {
         return res.status(401).json({ message: "Invalid password" })
     }
-    return res.json("Hello World")
+    const token = createToken(user)
+    return res.json({ token })
     } catch (error: any) {
-    return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 
