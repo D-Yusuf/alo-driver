@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import notFoundHandler from './middleware/notFoundHandler';
 import errorHandler from './middleware/errorHandler';
-import router from './api/x.router';
+import router from './api/Router';
 import dotenv from 'dotenv';
 dotenv.config();
 connectDb();
@@ -15,10 +15,10 @@ app.use(cors())
 app.use(morgan("dev"))
 
 
-app.use('/', router);
+app.use('/api', router);
 
 // use if u want to see images in browser-> localhost:PORT/media/...imgUrl
-// app.use("media", express.static(path.join(__dirname, "/media")))
+app.use("media", express.static(path.join(__dirname, "/media")))
 
 app.use(notFoundHandler)
 app.use(errorHandler)

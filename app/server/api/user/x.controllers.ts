@@ -1,6 +1,43 @@
-import x from '../models/User';
+import Users from '../../models/User';
+import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import passport from '../../middleware/passport';
+
+const createToken = (user: any) => {
+    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' })
+}   
+const encryptPassword = async (password: string) => {
+    return await bcrypt.hash(password, 10)
+}
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const encryptedPassword = await encryptPassword(req.body.password)
+        const user = await Users.create({ ...req.body, password: encryptedPassword })
+        const token = createToken(user)
+        return res.json({ token })
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message })
+    }
+}
 
 
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+    const { phoneNumber, password } = req.body
+    const user = await Users.findOne({ phoneNumber })
+    if (!user) {
+        return res.status(404).json({ message: "User not found" })
+    }
+    const isPasswordCorrect = await bcrypt.compare(password, user.password)
+    if (!isPasswordCorrect) {
+        return res.status(401).json({ message: "Invalid password" })
+    }
+    return res.json("Hello World")
+    } catch (error: any) {
+    return res.status(500).json({ message: error.message })
+    }
+}
 
 
 
