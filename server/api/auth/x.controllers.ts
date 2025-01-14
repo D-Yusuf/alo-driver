@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import passport from '../../middleware/passport';
 
 const createToken = (user: any) => {
-    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' })
+    return jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' })
 }   
 const encryptPassword = async (password: string) => {
     return await bcrypt.hash(password, 10)
@@ -39,41 +39,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         next(error)
     }
 }
-
-export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const users = await Users.find()
-        return res.json(users)
-    } catch (error: any) {
-        next(error)
-    }
-}
-
-export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const user = await Users.findById(req.user._id)
-            .populate([
-                { path: 'appointments' },
-                { path: 'families' },
-                { path: 'reviews' },
-                {
-                    path: 'appointments',
-                    populate: [
-                        { path: 'driver' },
-                        { path: 'family' }
-                    ]
-                }
-            ])
-        return res.json(user)
-    } catch (error: any) {
-        next(error)
-    }
-}
-
-
-
-
-
 
 
 

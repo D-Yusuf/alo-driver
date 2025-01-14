@@ -1,12 +1,13 @@
 import express from 'express';
 import upload from '../../middleware/multer';
 const router = express.Router();
+import passport from '../../middleware/passport';
 import { getAllDrivers, getAllUsers, getProfile } from './x.controllers';
 
 
 
 router.get('/', getAllUsers);
-router.get('/profile', getProfile);
+router.get('/profile', passport.authenticate('jwt', { session: false }), getProfile);
 
 
 router.get('/drivers', getAllDrivers);

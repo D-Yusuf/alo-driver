@@ -3,8 +3,11 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import User from '../models/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy } from 'passport-jwt';
+import dotenv from 'dotenv';
+dotenv.config();
 // Local Strategy
 passport.use(
     new LocalStrategy(
@@ -40,11 +43,11 @@ passport.use(
     new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
       try {
         const user = await User.findById(jwt_payload._id); // maybe payload.id not _id
+        console.log(user)
         if (user) {
           return done(null, user);
-        } else {
-          return done(null, false);
         }
+        return done(null, false);
       } catch (error) {
         return done(error, false);
       }

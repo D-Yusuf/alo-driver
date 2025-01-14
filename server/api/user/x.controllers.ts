@@ -1,4 +1,7 @@
 import Users from '../../models/User';
+import Appointments from '../../models/Appointment';
+import Reviews from '../../models/Review';
+import Families from '../../models/Family';
 import { Request, Response, NextFunction } from 'express';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -12,19 +15,8 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
 
 export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await Users.findById(req.user._id)
-            .populate([
-                { path: 'appointments' },
-                { path: 'families' },
-                { path: 'reviews' },
-                {
-                    path: 'appointments',
-                    populate: [
-                        { path: 'driver' },
-                        { path: 'family' }
-                    ]
-                }
-            ])
+        const user = await Users.findById(req.user._id).select('-password')
+       
         return res.json(user)
     } catch (error: any) {
         next(error)
