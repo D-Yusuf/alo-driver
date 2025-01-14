@@ -8,7 +8,8 @@ const AppointmentSchema = new Schema({
   timeTo: { type: Date, required: true },
   location: { type: String, required: true },
   done: { type: Boolean, default: false },
-  review: { type: Schema.Types.ObjectId, ref: 'Review' }
+  review: { type: Schema.Types.ObjectId, ref: 'Review' },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export default model('Appointment', AppointmentSchema);

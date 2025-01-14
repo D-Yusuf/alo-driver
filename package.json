@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:server": "nodemon app/server/app.ts",
+    "dev:server": "nodemon server/app.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

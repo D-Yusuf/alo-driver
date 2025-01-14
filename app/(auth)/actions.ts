@@ -1,4 +1,3 @@
-'use server'
 
 import { login, signup } from "../api/user"
 import { saveToken } from "../api/storage"

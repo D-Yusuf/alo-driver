@@ -1,4 +1,35 @@
-import x from '../models/User';
+import Users from '../../models/User';
+import { Request, Response, NextFunction } from 'express';
+
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await Users.find()
+        return res.json(users)
+    } catch (error: any) {
+        next(error)
+    }
+}
+
+export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await Users.findById(req.user._id)
+            .populate([
+                { path: 'appointments' },
+                { path: 'families' },
+                { path: 'reviews' },
+                {
+                    path: 'appointments',
+                    populate: [
+                        { path: 'driver' },
+                        { path: 'family' }
+                    ]
+                }
+            ])
+        return res.json(user)
+    } catch (error: any) {
+        next(error)
+    }
+}
 
 
 
@@ -9,8 +40,14 @@ import x from '../models/User';
 
 
 
-
-
+export const getAllDrivers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const drivers = await Users.find({ role: 'driver' })
+        return res.json(drivers)
+    } catch (error: any) {
+        next(error)
+    }
+}
 
 
 

@@ -4,9 +4,10 @@ import userRouter from './user/x.routes';
 import familyRouter from './family/x.routes';
 import appointmentRouter from './appointment/x.routes';
 import reviewRouter from './review/x.routes';
-
+import authRouter from './auth/x.routes';
 const router = express.Router();
 
+router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/family', familyRouter);
 router.use('/appointment', appointmentRouter);

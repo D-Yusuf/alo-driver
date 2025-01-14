@@ -49,6 +49,28 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
+export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await Users.findById(req.user._id)
+            .populate([
+                { path: 'appointments' },
+                { path: 'families' },
+                { path: 'reviews' },
+                {
+                    path: 'appointments',
+                    populate: [
+                        { path: 'driver' },
+                        { path: 'family' }
+                    ]
+                }
+            ])
+        return res.json(user)
+    } catch (error: any) {
+        next(error)
+    }
+}
+
+
 
 
 
