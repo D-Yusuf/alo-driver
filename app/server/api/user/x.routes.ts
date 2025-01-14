@@ -1,11 +1,12 @@
 import express from 'express';
 import upload from '../../middleware/multer';
 const router = express.Router();
-import { register, login } from './x.controllers';
+import { signup, login, getAllUsers } from './x.controllers';
 
 
-router.post('/register', register);
+router.post('/signup', signup);
 router.post('/login', login);
+router.get('/', getAllUsers);
 
 
 

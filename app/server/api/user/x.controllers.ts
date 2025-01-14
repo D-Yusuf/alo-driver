@@ -10,12 +10,12 @@ const createToken = (user: any) => {
 const encryptPassword = async (password: string) => {
     return await bcrypt.hash(password, 10)
 }
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const encryptedPassword = await encryptPassword(req.body.password)
         const user = await Users.create({ ...req.body, password: encryptedPassword })
         const token = createToken(user)
-        return res.json({ token })
+        return res.json({ token, user })
     } catch (error: any) {
         next(error)
     }
@@ -34,7 +34,16 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         return res.status(401).json({ message: "Invalid password" })
     }
     const token = createToken(user)
-    return res.json({ token })
+    return res.json({token, user})
+    } catch (error: any) {
+        next(error)
+    }
+}
+
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await Users.find()
+        return res.json(users)
     } catch (error: any) {
         next(error)
     }
