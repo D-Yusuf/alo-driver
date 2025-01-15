@@ -1,70 +1,70 @@
-import x from '../models/User';
+import Families from '../../models/Family';
+import Users from '../../models/User';
+import { Request, Response, NextFunction } from 'express';
+
+export const createFamily = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const family = await Families.create({...req.body, members: [req.user._id, ...req.body.members], admins: [req.user._id]})
+        await Users.findByIdAndUpdate(req.user._id, {family: family._id}, { new: true })
+        return res.json(family)
+    } catch (error: any) {
+        next(error)
+    }
+}
+
+export const getFamily = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await Users.findById(req.params.userId)
+        const family = await Families.findById(user?.family)
+        return res.json(family)
+    } catch (error: any) {
+        next(error)
+    }
+}
+
+export const updateFamily = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await Users.findById(req.user._id)
+        const family = await Families.findById(user?.family)
+        if(!family?.admins.includes(req.user._id)) {
+            return res.status(403).json({message: "You are not an admin of this family"})
+        }
+        if(!req.body.members?.includes(req.user._id)) {
+            return res.status(403).json({message: "You cannot remove yourself from the family"})
+        }
+        await Families.findByIdAndUpdate(user?.family, req.body, { new: true })
+        return res.json(family)
+    } catch (error: any) {
+        next(error)
+    }
+}
 
 
+export const deleteFamily = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await Users.findById(req.params.userId)
+        const family = await Families.findById(user?.family)
+        if(!family?.admins.includes(req.user._id)) {
+            return res.status(403).json({message: "You are not an admin of this family"})
+        }
+        await Families.findByIdAndDelete(family?._id)
+        await Users.findByIdAndUpdate(req.params.userId, {family: null}, { new: true })
+        return res.json(family)
+
+    } catch (error: any) {
+        next(error)
+    }
+}
 
 
+export const getAllFamilies = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const families = await Families.find()
+        return res.json(families)
+    } catch (error: any) {
+        next(error)
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-// REFRENCE ⬇️
-
-// exports.postsCreate = async (req, res) => {
-//     try {
-//       if(req.file){
-//         console.log(req.file)
-//         req.body.file = req.file.path
-//       }
-//       const newPost = await Post.create(req.body);
-//       res.status(201).json(newPost);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsDelete = async (req, res) => {
-//     const { postId } = req.params;
-//     try {
-//       const foundPost = await Post.findById(postId);
-//       if (foundPost) {
-//         await foundPost.deleteOne();
-//         res.status(204).end();
-//       } else {
-//         res.status(404).json({ message: "post not found" });
-//       }
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsUpdate = async (req, res) => {
-//     const { postId } = req.params;
-//     try {
-//       const foundPost = await Post.findById(postId);
-//       if (foundPost) {
-//         await foundPost.updateOne(req.body);
-//         res.status(204).end();
-//       } else {
-//         res.status(404).json({ message: "post not found" });
-//       }
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsGet = async (req, res) => {
-//     try {
-//       const posts = await Post.find();
-//       res.json(posts);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
   
