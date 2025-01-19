@@ -9,6 +9,7 @@ const AppointmentSchema = new Schema({
   location: { type: String, required: true },
   done: { type: Boolean, default: false },
   review: { type: Schema.Types.ObjectId, ref: 'Review' },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
