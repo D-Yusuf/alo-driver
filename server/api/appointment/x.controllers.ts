@@ -1,15 +1,25 @@
 import Appointments from '../../models/Appointment';
 import Users from '../../models/User';
-
+import Families from '../../models/Family';
 import { Request, Response, NextFunction } from 'express';
 
 export const createAppointment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const appointment = await Appointments.create(req.body)
-        const { userId, driverId, date, time, location, status } = req.body
+        // if the appointment wasnt made by admin
+        if(!req.body.user) {
+            req.body.user = req.user._id
+        }
+        if(req.body.user !== req.user._id) {
+            const family = (await Families.findOne({admins: { $in: [req.user._id] }}) || '') 
+            if(!family) {
+                return res.status(403).json({message: "Only admins can create an appointment for someone else"})
+            }
+        }
+        const { user, driver, timeFrom, timeTo, location } = req.body
+        const appointment = await Appointments.create({...req.body, createdBy: req.user._id})
 
-        await Users.findByIdAndUpdate(userId, { $push: { appointments: appointment._id } })
-        await Users.findByIdAndUpdate(driverId, { $push: { appointments: appointment._id } })
+        await Users.findByIdAndUpdate(user, { $push: { appointments: appointment._id } })
+        await Users.findByIdAndUpdate(driver, { $push: { appointments: appointment._id } })
 
         return res.json(appointment)
     } catch (error: any) {
@@ -45,71 +55,4 @@ export const updateAppointment = async (req: Request, res: Response, next: NextF
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// REFRENCE ⬇️
-
-// exports.postsCreate = async (req, res) => {
-//     try {
-//       if(req.file){
-//         console.log(req.file)
-//         req.body.file = req.file.path
-//       }
-//       const newPost = await Post.create(req.body);
-//       res.status(201).json(newPost);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsDelete = async (req, res) => {
-//     const { postId } = req.params;
-//     try {
-//       const foundPost = await Post.findById(postId);
-//       if (foundPost) {
-//         await foundPost.deleteOne();
-//         res.status(204).end();
-//       } else {
-//         res.status(404).json({ message: "post not found" });
-//       }
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsUpdate = async (req, res) => {
-//     const { postId } = req.params;
-//     try {
-//       const foundPost = await Post.findById(postId);
-//       if (foundPost) {
-//         await foundPost.updateOne(req.body);
-//         res.status(204).end();
-//       } else {
-//         res.status(404).json({ message: "post not found" });
-//       }
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
-  
-//   exports.postsGet = async (req, res) => {
-//     try {
-//       const posts = await Post.find();
-//       res.json(posts);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   };
   
