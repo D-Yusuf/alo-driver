@@ -6,7 +6,15 @@ import { Request, Response, NextFunction } from 'express';
 export const createFamily = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const family = await Families.create({...req.body, members: [req.user._id, ...req.body.members], admins: [req.user._id]})
-        await Users.findByIdAndUpdate(req.user._id, {family: family._id}, { new: true })
+        
+        // update family key for users
+        await Users.findByIdAndUpdate(req.body.diver, {family: family._id, familyAdmin: true}, { new: true })
+        await Promise.all((family?.members || []).map(async (member) => {
+            await Users.findByIdAndUpdate(member, {family: family._id, familyAdmin: family.admins.includes(member)}, { new: true })
+        }));
+        await Promise.all((family?.drivers || []).map(async (driver) => {
+            await Users.findByIdAndUpdate(driver, {family: family._id}, { new: true })
+        }));
         return res.json(family)
     } catch (error: any) {
         next(error)
@@ -25,36 +33,42 @@ export const getFamily = async (req: Request, res: Response, next: NextFunction)
 
 export const updateFamily = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await Users.findById(req.params.userId)
+        const user = await Users.findById(req.user._id)
         const family = await Families.findById(user?.family)
-        // Remove from user's schema family ID
-        await Promise.all((family?.members || []).map(async (member) => {
-            await Users.findByIdAndUpdate(member, {family: null}, { new: true });
-        }));
+        
         // if the user is not an admin of the family
-        if(!family?.admins.includes(req.params.userId)) {
+        if(!family?.admins.includes(req.user._id)) {
             return res.status(403).json({message: "You are not an admin of this family"})
         }
-
-         // if the user removed all members from the family
+        
+        // if the user removed all members from the family
         if(!req.body.members.length) {
             return res.status(403).json({message: "You cannot remove all members from the family"})
         }
+        // Remove from user's schema family ID
+        await Promise.all((family?.members).map(async (member) => {
+            await Users.findByIdAndUpdate(member, {family: null}, { new: true });
+        }));
         // Add to user's schema family ID
-        req.body.members.forEach(async (member: string) => {
+        await Promise.all(req.body.members.map(async (member: string) => {
             await Users.findByIdAndUpdate(member, {family: family?._id}, { new: true })
-        })
+        }))
 
-        // if the only admin is the user himself and he left the family
-        if(!req.body.members.includes(req.params.userId) && family?.admins.length === 1) { 
-            const members = family.members.filter(member => !family.admins.includes(member))
-            const randomMember = members[Math.floor(Math.random() * members.length)]
-            if (randomMember) {
-                await Families.findByIdAndUpdate(family._id, { admins: [randomMember] } , { new: true })
-            }
+        // if the only admin is the user himself and he left the family 
+        if(!req.body.members.includes(req.user._id)) {
+            if(family?.admins.length === 1){
+                const members = family.members.filter(member => !family.drivers.includes(member))
+                const randomMember = members[Math.floor(Math.random() * members.length)]
+                if (randomMember) {
+                    await Families.findByIdAndUpdate(family._id, { admins: [randomMember] } , { new: true })
+                }
+
+            } 
+            // remove the user from the family admins
+            await Users.findByIdAndUpdate(req.user._id, {familyAdmin: false}, { new: true })
         }
-        await Families.findByIdAndUpdate(user?.family, req.body, { new: true })
-        return res.json(family)
+        const newFamily = await Families.findByIdAndUpdate(user?.family, req.body, { new: true })
+        return res.json(newFamily)
     } catch (error: any) {
         next(error)
     }

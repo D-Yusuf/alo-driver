@@ -7,7 +7,6 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['user', 'familyMember', 'driver'], required: true },
   family: { type: Schema.Types.ObjectId, ref: 'Family' },
-  familyAdmin: { type: Boolean, default: false }, // I think this is not needed
   appointments: [{ type: Schema.Types.ObjectId, ref: 'Appointment' }],
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
   // rating: { type: Number, default: 0 },

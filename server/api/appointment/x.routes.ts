@@ -1,28 +1,20 @@
 import express from 'express';
 import upload from '../../middleware/multer';
+import passport from '../../middleware/passport';
+
 const router = express.Router();
+import { createAppointment, getAllAppointments, deleteAppointment, updateAppointment } from './x.controllers';
+
+router.get('/', passport.authenticate('jwt', { session: false }), getAllAppointments);
+
+router.post('/', passport.authenticate('jwt', { session: false }), createAppointment);
+
+router.delete('/:id', passport.authenticate('jwt', { session: false }), deleteAppointment);
+
+router.put('/:id', passport.authenticate('jwt', { session: false }), updateAppointment);
 
 
 
 
-
-
-
-
-
-
-
-// REFRENCE ⬇️
-
-// const { postsGet, postsUpdate, postsDelete, postsCreate } = require('./posts.controllers');
-  
-router.get('/test', (req, res) => {
-  res.json("Hello World")
-});
-// router.post('/', upload.single("image") ,postsCreate);
-
-// router.delete('/:postId', postsDelete);
-
-// router.put('/:postId', postsUpdate);
 
 export default router;

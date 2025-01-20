@@ -1,5 +1,5 @@
 
-import { login, signup } from "../api/user"
+import { login, signup } from "../api/auth"
 import { saveToken } from "../api/storage"
 export async function handleLogin(formData: FormData) {
     const rawFormData = Object.fromEntries(formData.entries())
