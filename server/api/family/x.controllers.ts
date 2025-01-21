@@ -54,8 +54,8 @@ export const updateFamily = async (req: Request, res: Response, next: NextFuncti
             await Users.findByIdAndUpdate(member, {family: family?._id}, { new: true })
         }))
 
-        // if the only admin is the user himself and he left the family 
-        if(!req.body.members.includes(req.user._id)) {
+        // if the only admin is the user himself and he left the family
+        if(!req.body.members.includes(req.user._id.toString())) {
             if(family?.admins.length === 1){
                 const members = family.members.filter(member => !family.drivers.includes(member))
                 const randomMember = members[Math.floor(Math.random() * members.length)]
@@ -65,7 +65,7 @@ export const updateFamily = async (req: Request, res: Response, next: NextFuncti
 
             } 
             // remove the user from the family admins
-            await Users.findByIdAndUpdate(req.user._id, {familyAdmin: false}, { new: true })
+  
         }
         const newFamily = await Families.findByIdAndUpdate(user?.family, req.body, { new: true })
         return res.json(newFamily)
