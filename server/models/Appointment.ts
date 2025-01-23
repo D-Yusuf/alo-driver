@@ -7,7 +7,7 @@ const AppointmentSchema = new Schema({
   timeFrom: { type: Date, required: true },
   timeTo: { type: Date, required: true },
   location: { type: String, required: true },
-  done: { type: Boolean, default: false },
+  status: { type: String, enum: ['pending', 'ongoing', 'arrived'], default: 'pending' },
   review: { type: Schema.Types.ObjectId, ref: 'Review' },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },

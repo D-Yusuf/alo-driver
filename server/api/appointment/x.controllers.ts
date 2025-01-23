@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 export const createAppointment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // if the appointment wasnt made by admin
+        req.body.family = req.params.familyId
         if(!req.body.user) {
             req.body.user = req.user._id
         }

@@ -7,7 +7,7 @@ import { createAppointment, getAllAppointments, deleteAppointment, updateAppoint
 
 router.get('/', passport.authenticate('jwt', { session: false }), getAllAppointments);
 
-router.post('/', passport.authenticate('jwt', { session: false }), createAppointment);
+router.post('/:familyId', passport.authenticate('jwt', { session: false }), createAppointment);
 
 router.delete('/:id', passport.authenticate('jwt', { session: false }), deleteAppointment);
 
