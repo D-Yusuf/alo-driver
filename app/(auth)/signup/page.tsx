@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { handleSignup } from '../actions';
+import { handleSignup } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 
 export default function Signup() {
